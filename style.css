@@ -1,0 +1,62 @@
+:root {
+  --header-height: 8em;
+  --header-height-small: 4em;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.promoStrip {
+  background: grey;
+  height: 2em;
+  transition: height 0.5s;
+}
+
+.promoStrip.open {
+  height: 6em;
+}
+
+header {
+  background: red;
+  height: var(--header-height);
+  transition: height 0.5s;
+}
+
+header.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+header.small {
+  height: 4em;
+}
+
+.mainWrapper {
+  display: flex;
+}
+
+nav {
+  width: 20%;
+  background: purple;
+  height: 300px;
+}
+
+nav.sticky {
+  position: fixed;
+  left: 0;
+}
+
+main {
+  background: green;
+  height: 80em;
+  width: 80%;
+}
+
+footer {
+  background: black;
+  height: 8em;
+}
