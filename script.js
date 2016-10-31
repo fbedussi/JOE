@@ -1,10 +1,59 @@
-var BaseModule = {
-	_getDynamicParameter: function(parameter) {
+var Joe = {
+	_globalListeners: {
+		window: {
+			scoll: [],
+			resize: []
+		}
+	},
+	
+	getDynamicParameter: function(parameter) {
 		if (typeof parameter === 'function') {
 			return parameter();
 		} else {
 			return parameter;
 		}
+	},
+	
+	registerGlobalListener(selector, event, eventHandler) {
+		var sel = selector.toLowerCase();
+		var ev = event.toLowerCase();
+		
+		if (!this._globalListeners[sel]) {
+			this._globalListeners[sel] = {};
+		}
+		
+		if (!this._globalListeners[sel][ev]) {
+			this._globalListeners[sel][ev] = [];
+		}
+		
+		this._globalListeners[sel][ev].push(eventHandler);
+	},
+	
+	initGlobalListeners: function() {
+		Object.keys(this._globalListeners).forEach(selector => {
+			var elements;
+			
+			switch (selector) {
+				case 'window':
+					elements = [window];
+					break;
+				case 'document':
+					elements = [document];
+					break;
+				default:
+					elements = [].slice.call(document.querySelectorAll(key));
+			}
+			
+			elements.forEach((el) => {
+				Object.keys(this._globalListeners[selector]).forEach(event => {
+					el.addEventListener(event, () => {
+						this._globalListeners[selector][event].forEach(eventHandler => {eventHandler();});
+					});
+				});
+			});
+		});
+		
+		return this;
 	},
 
 	getEl: function(selectorOrElement) {
@@ -28,7 +77,7 @@ var Sticky = {
 	_checkSticky: function() {
 		var elMeasures = this._isSticky? this._shadowEl.getBoundingClientRect() : this._el.getBoundingClientRect();
 
-		if (elMeasures.top <= this._getDynamicParameter(this._scrollTreshold)) {
+		if (elMeasures.top < this.getDynamicParameter(this._scrollTreshold)) {
 			if (!this._isSticky) {
 				this._el.style.top = this._el.getBoundingClientRect().top + 'px';
 				this._el.classList.add('sticky');
@@ -45,51 +94,71 @@ var Sticky = {
 			}
 		}
 	},
+	
 	sticky: function(scrollTreshold) {
-		this._scrollTreshold = scrollTreshold;
-
-		var elMeasures = this._el.getBoundingClientRect();
-        this._elDisplay = this._el.style.display;
-		var elType = this._el.tagName;
-		this._shadowEl = document.createElement(elType);
-		var parent = this._el.parentElement;
-		this._shadowEl.className = this._el.className + ' stickyPlaceholder';
-		this._shadowEl.style.display = 'none';
-		//this._el.style.width = elMeasures.width + 'px';
-		parent.insertBefore(this._shadowEl, this._el);
-
-		window.addEventListener('scroll', this._checkSticky.bind(this));
-
-		return this;
+		try {
+			this._scrollTreshold = scrollTreshold;
+	
+			var elMeasures = this._el.getBoundingClientRect();
+			this._elDisplay = this._el.style.display;
+			var elType = this._el.tagName;
+			this._shadowEl = document.createElement(elType);
+			var parent = this._el.parentElement;
+			this._shadowEl.className = this._el.className + ' stickyPlaceholder';
+			this._shadowEl.style.display = 'none';
+			//this._el.style.width = elMeasures.width + 'px';
+			parent.insertBefore(this._shadowEl, this._el);
+	
+			this.registerGlobalListener('window', 'scroll', this._checkSticky.bind(this));
+			//window.addEventListener('scroll', this._checkSticky.bind(this));
+	
+			return this;
+		} catch(e) {
+			console.log('ERROR:', e, 'is Joe here?');
+			return this;
+		}
 	}
 };
 
 var Shrink = {
 	_checkShrink: function() {
-		if (document.scrollingElement.scrollTop > this._getDynamicParameter(this._shrinkTreshold)) {
+		if (document.scrollingElement.scrollTop > this.getDynamicParameter(this._shrinkTreshold)) {
 			this._el.classList.add('small');
 		} else {
 			this._el.classList.remove('small');
 		}
 	},
+	
 	shrink: function(treshold) {
-		this._shrinkTreshold = treshold;
+		try {
+			this._shrinkTreshold = treshold;
+	
+			this.registerGlobalListener('window', 'scroll', this._checkShrink.bind(this));
+			//window.addEventListener('scroll', this._checkShrink.bind(this));
 
-		window.addEventListener('scroll', this._checkShrink.bind(this));
-
-		return this;
+			return this;
+		} catch(e) {
+			console.log('ERROR:', e, 'is Joe here?');
+			return this;
+		}
 	}
 };
 
-var header = Object.assign({}, BaseModule, Sticky, Shrink)
+var headerEl = document.querySelector('#header');
+var promoEl = document.querySelector('.promoStrip');
+
+var header = Object.assign({}, Joe, Sticky, Shrink)
 	.getEl('#header')
 	.sticky(0)
-	.shrink(200);
+	.shrink(200)
+	.initGlobalListeners();
 
-document.querySelector('.promoStrip').addEventListener('click', (e) => {
-	e.target.classList.toggle('open')
-});
-
-var nav = Object.assign({}, BaseModule, Sticky)
+var nav = Object.assign({}, Joe, Sticky)
 	.getEl('#nav')
-	.sticky(() => document.querySelector('#header').clientHeight);
+	.sticky(promoEl.clientHeight + headerEl.clientHeight)
+	.initGlobalListeners();
+    
+document.querySelector('.promoStrip').addEventListener('click', (e) => {
+	e.target.classList.toggle('open');
+    nav._checkSticky();
+});
