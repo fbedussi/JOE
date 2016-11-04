@@ -56,6 +56,10 @@ main {
   width: 80%;
 }
 
+.secondaryNav {
+  background: yellow;
+}
+
 footer {
   background: black;
   height: 8em;

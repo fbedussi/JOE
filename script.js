@@ -79,19 +79,30 @@ var Sticky = {
 
 		if (elMeasures.top < this.getDynamicParameter(this._scrollTreshold)) {
 			if (!this._isSticky) {
-				this._el.style.top = this._el.getBoundingClientRect().top + 'px';
+				this._el.style.top = elMeasures.top + 'px';
+				this._el.style.left = elMeasures.left + 'px';
+				this._el.style.width = elMeasures.width + 'px';
 				this._el.classList.add('sticky');
 				this._shadowEl.style.display = this._elDisplay;
-				this._shadowEl.style.visibility = 'hidden';
 				this._isSticky = true;
 			}
 		} else {
 			if (this._isSticky) {
 				this._el.classList.remove('sticky');
 				this._el.style.top = '';
+				this._el.style.left = '';
+				this._el.style.width = '';
 				this._shadowEl.style.display = 'none';
 				this._isSticky = false;
 			}
+		}
+	},
+	
+	_handleWinResize: function() {
+		if (this._isSticky) {
+			var measures = this._shadowEl.getBoundingClientRect();
+			this._el.style.width = measures.width + 'px';
+			this._el.style.left = measures.left + 'px';
 		}
 	},
 	
@@ -106,12 +117,12 @@ var Sticky = {
 			var parent = this._el.parentElement;
 			this._shadowEl.className = this._el.className + ' stickyPlaceholder';
 			this._shadowEl.style.display = 'none';
-			//this._el.style.width = elMeasures.width + 'px';
+			this._shadowEl.style.opacity = 0;
 			parent.insertBefore(this._shadowEl, this._el);
 	
 			this.registerGlobalListener('window', 'scroll', this._checkSticky.bind(this));
-			//window.addEventListener('scroll', this._checkSticky.bind(this));
-	
+			this.registerGlobalListener('window', 'resize', this._handleWinResize.bind(this));
+		
 			return this;
 		} catch(e) {
 			console.log('ERROR:', e, 'is Joe here?');
@@ -134,7 +145,6 @@ var Shrink = {
 			this._shrinkTreshold = treshold;
 	
 			this.registerGlobalListener('window', 'scroll', this._checkShrink.bind(this));
-			//window.addEventListener('scroll', this._checkShrink.bind(this));
 
 			return this;
 		} catch(e) {
@@ -156,6 +166,11 @@ var header = Object.assign({}, Joe, Sticky, Shrink)
 var nav = Object.assign({}, Joe, Sticky)
 	.getEl('#nav')
 	.sticky(promoEl.clientHeight + headerEl.clientHeight)
+	.initGlobalListeners();
+	
+var secondaryNav = Object.assign({}, Joe, Sticky)
+	.getEl('#secondaryNav')
+	.sticky(300)
 	.initGlobalListeners();
     
 document.querySelector('.promoStrip').addEventListener('click', (e) => {
