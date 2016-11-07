@@ -76,10 +76,11 @@ var Joe = {
 var Sticky = {
 	_checkSticky: function() {
 		var elMeasures = this._isSticky? this._shadowEl.getBoundingClientRect() : this._el.getBoundingClientRect();
+		var scrollTreshold = this.getDynamicParameter(this._scrollTreshold);
 
-		if (elMeasures.top < this.getDynamicParameter(this._scrollTreshold)) {
+		if (elMeasures.top < scrollTreshold) {
 			if (!this._isSticky) {
-				this._el.style.top = elMeasures.top + 'px';
+				this._el.style.top = scrollTreshold + 'px';
 				this._el.style.left = elMeasures.left + 'px';
 				this._el.style.width = elMeasures.width + 'px';
 				this._el.classList.add('sticky');
@@ -170,7 +171,7 @@ var nav = Object.assign({}, Joe, Sticky)
 	
 var secondaryNav = Object.assign({}, Joe, Sticky)
 	.getEl('#secondaryNav')
-	.sticky(300)
+	.sticky(200)
 	.initGlobalListeners();
     
 document.querySelector('.promoStrip').addEventListener('click', (e) => {

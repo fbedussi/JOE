@@ -58,6 +58,8 @@ main {
 
 .secondaryNav {
   background: yellow;
+  position: relative;
+  top: 100px;
 }
 
 footer {
