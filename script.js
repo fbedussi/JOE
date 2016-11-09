@@ -70,6 +70,10 @@ var Joe = {
 		}
 
 		return this;
+	},
+	
+	compose: function(...objs) {
+		return Object.assign({}, this, ...objs);
 	}
 };
 
@@ -123,12 +127,10 @@ var Sticky = {
 	
 			this.registerGlobalListener('window', 'scroll', this._checkSticky.bind(this));
 			this.registerGlobalListener('window', 'resize', this._handleWinResize.bind(this));
-		
-			return this;
 		} catch(e) {
 			console.log('ERROR:', e, 'is Joe here?');
-			return this;
 		}
+			return this;
 	}
 };
 
@@ -146,30 +148,29 @@ var Shrink = {
 			this._shrinkTreshold = treshold;
 	
 			this.registerGlobalListener('window', 'scroll', this._checkShrink.bind(this));
-
-			return this;
 		} catch(e) {
 			console.log('ERROR:', e, 'is Joe here?');
-			return this;
 		}
+		
+		return this;
 	}
 };
 
 var headerEl = document.querySelector('#header');
 var promoEl = document.querySelector('.promoStrip');
 
-var header = Object.assign({}, Joe, Sticky, Shrink)
+var header = Joe.compose(Sticky, Shrink)
 	.getEl('#header')
 	.sticky(0)
 	.shrink(200)
 	.initGlobalListeners();
 
-var nav = Object.assign({}, Joe, Sticky)
+var nav = Joe.compose(Sticky)
 	.getEl('#nav')
 	.sticky(promoEl.clientHeight + headerEl.clientHeight)
 	.initGlobalListeners();
 	
-var secondaryNav = Object.assign({}, Joe, Sticky)
+var secondaryNav = Joe.compose(Sticky)
 	.getEl('#secondaryNav')
 	.sticky(200)
 	.initGlobalListeners();
