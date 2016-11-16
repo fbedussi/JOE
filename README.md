@@ -1,5 +1,5 @@
 #JOE (Javascript Objects Easy)
-Joe is a mini js framework for object composition. It exposes 5 methods:
+Joe is a mini js framework for object composition in front-end development. It exposes 5 methods:
 -## compose(obj[, obj, obj, ...])
 returns a new object that is the result of the composition of Joe and the objects passed as parameters
 -## getEl(selector|nodeElement)
